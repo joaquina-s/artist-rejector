@@ -418,29 +418,6 @@
         ev.currentTarget.classList.toggle('muted', !state.sound);
     });
 
-    // ---------- boot terminal (Lain) ----------
-    const BOOT_LINES = [
-        'navi os v3.7 — initializing .................. ok',
-        'establishing uplink to THE WIRED ........ ok',
-        'mounting inbox daemon ................... ok',
-        'scanning for incoming rejections ........',
-        'WARNING: rejection queue depth = ∞',
-        'present day.   present time.   ﾊﾊﾊ'
-    ];
-    function typeBoot() {
-        const el = document.getElementById('boot-log');
-        if (!el) return;
-        let line = 0, ch = 0;
-        (function step() {
-            if (line >= BOOT_LINES.length) return;
-            el.textContent = BOOT_LINES.slice(0, line).join('\n') +
-                (line ? '\n' : '') + BOOT_LINES[line].slice(0, ch);
-            ch++;
-            if (ch > BOOT_LINES[line].length) { line++; ch = 0; setTimeout(step, 320); }
-            else { setTimeout(step, 16 + Math.random() * 26); }
-        })();
-    }
-
     // ---------- status bar HUD (clock + feed) ----------
     const FEED = [
         'scanning the wired…', 'no acceptances found', 'listening on port 23…',
@@ -467,33 +444,26 @@
         });
     }
 
-    // ---------- boot ----------
-    $('#enter-button').addEventListener('click', () => {
-        // user gesture -> desbloquea la reproducción de audio
+    // ---------- desbloqueo de audio (primer gesto del usuario) ----------
+    // el navegador bloquea el audio hasta que hay una interacción
+    function unlockAudio() {
         audioPool.forEach((a) => {
             try { a.play().then(() => { a.pause(); a.currentTime = 0; }).catch(() => {}); } catch (_) {}
         });
+    }
+    ['pointerdown', 'keydown', 'touchstart'].forEach((ev) =>
+        window.addEventListener(ev, unlockAudio, { once: true })
+    );
 
-        const landing = $('#landing');
-        landing.style.opacity = '0';
-        setTimeout(() => {
-            landing.classList.add('hidden');
-            const app = $('#app');
-            app.classList.remove('hidden');
-            void app.offsetWidth;
-            app.classList.add('show');
-
-            seed();
-            renderList();
-            updateBadges();
-            scheduleNext();
-        }, 800);
-    });
+    // ---------- arranque directo en la bandeja ----------
+    const app = $('#app');
+    requestAnimationFrame(() => app.classList.add('show'));
+    seed();
+    renderList();
+    updateBadges();
+    scheduleNext();
+    startHud();
 
     // refrescar tiempos relativos
-    setInterval(() => { if (!$('#app').classList.contains('hidden')) renderList(); }, 30000);
-
-    // arrancar boot terminal + HUD
-    typeBoot();
-    startHud();
+    setInterval(renderList, 30000);
 })();
