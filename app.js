@@ -7,8 +7,9 @@
     'use strict';
 
     // ---------- config ----------
-    const APPLICANT = 'Joaquina';            // a quién rechazan
-    const APPLICANT_EMAIL = 'joaquina@studio.art';
+    const ME_NAME = 'vos';                   // tu identidad en el hilo (sin nombre real)
+    const ME_EMAIL = 'applicant@artist.world';
+    const GAME_HEAT = 4;                      // a partir de cuántas respuestas aparece el buscaminas
     const BASE_REJECTIONS = 247;             // rechazos previos de "tu carrera"
     const ARRIVAL_MIN = 6000;                // ms entre rechazos (mín)
     const ARRIVAL_MAX = 13000;               // ms entre rechazos (máx)
@@ -56,7 +57,7 @@
 
     // ---- English building blocks ----
     const EN = {
-        greet: [`Dear ${APPLICANT},`, 'Dear Applicant,', `Dear ${APPLICANT},`, 'Dear Artist,'],
+        greet: ['Dear Applicant,', 'Dear Artist,', 'To whom it may concern,', 'Dear Sir or Madam,'],
         open: [
             'Thank you for your application to the {program} at {org}.',
             'Thank you for taking the time to submit your proposal to {org}.',
@@ -102,7 +103,7 @@
 
     // ---- Spanish building blocks ----
     const ES = {
-        greet: [`Estimada ${APPLICANT},`, 'Estimado/a postulante,', `Hola ${APPLICANT},`],
+        greet: ['Estimado/a postulante,', 'Estimado/a artista,', 'A quien corresponda,'],
         open: [
             'Gracias por tu postulación a {program} de {org}.',
             'Gracias por tu interés y por el tiempo dedicado a postular a {program}.',
@@ -191,11 +192,15 @@
             signer,
             role,
             program,
-            to: `${APPLICANT} <${APPLICANT_EMAIL}>`,
+            to: `${ME_NAME} <${ME_EMAIL}>`,
             avatar: pick(AVATARS),
             time: when || new Date(),
             read: false,
-            starred: false
+            starred: false,
+            convo: [],          // hilo de respuestas (vos <-> ellos)
+            heat: 0,            // sube con cada respuesta -> el tono se pone más agresivo
+            gameShown: false,
+            game: null
         };
     }
 
@@ -300,6 +305,258 @@
         document.title = u > 0 ? `(${u}) Artist Rejector` : 'Artist Rejector';
     }
 
+    // =====================================================
+    //  HILO DE RESPUESTAS — escalada de tono + slop + juegos
+    // =====================================================
+
+    const sample = (arr, n) => arr.slice().sort(() => Math.random() - 0.5).slice(0, n);
+
+    // tus opciones de respuesta (tu voz), más desquiciadas a mayor heat
+    const ME_REPLIES = [
+        ['Gracias por avisarme.', '¿Podrían darme algún feedback?', '¿Habrá nuevas oportunidades pronto?', 'Entiendo, gracias igual.'],
+        ['Me encantaría recibir feedback, en serio.', '¿Alguien llegó a leer mi propuesta?', 'Es el rechazo número 248 este mes.', '¿Puedo volver a aplicar?'],
+        ['¿Abrieron el archivo siquiera?', 'Dediqué mi vida entera a esto.', 'Ok. Ok ok ok.', '¿En base a qué deciden?'],
+        ['No estoy enojada, estoy cansada.', '¿QUÉ QUIEREN DE MÍ?', '...', 'respondan algo humano por favor'],
+        ['🙂', 'voy a gritar al vacío', 'unsubscribe', 'ya ni sé por qué escribo'],
+        ['JAJAJAJA', 'dame el buscaminas entonces', 'acepto mi destino 💀', 'somos lo mismo vos y yo']
+    ];
+
+    // respuestas de ELLOS por nivel (0=primer reply). slop/ad opcional.
+    const THEM = [
+        [ // nivel 1 — auto-reply corporativo
+            { body: ['Thank you for your message.', 'Please note that this inbox is not monitored and replies are generated automatically.', 'Your application has been retained for our records for a period of 0 days.'] },
+            { body: ['We appreciate your enthusiasm.', 'Unfortunately, our decision is final and we are unable to enter into individual correspondence regarding outcomes.'] }
+        ],
+        [ // nivel 2 — pasivo-agresivo
+            { body: ['As previously stated, the decision is final.', 'We receive a very high volume of similar messages and cannot provide individual feedback.', 'We kindly ask for your understanding.'] },
+            { body: ['We understand that rejection can be difficult.', 'We kindly remind you that the committee’s decision deserves to be respected.'], ad: true }
+        ],
+        [ // nivel 3 — irritado
+            { body: ['We have already answered this.', 'Please stop replying to this thread.'] },
+            { body: ['This is an automated rejection.', 'There is no one here. There has never been anyone here.', 'Why are you still writing.'], ad: true }
+        ],
+        [ // nivel 4 — hostil
+            { body: ['ok. you NEED to stop emailing us.', 'this is the fourth time. we are begging you 🙂'], slop: true },
+            { body: ['we did not read your proposal.', 'nobody read it. NOBODY READS THEM.', 'please move on with your life 🙏'], slop: true, ad: true }
+        ],
+        [ // nivel 5+ — slop total
+            { body: ['⚠️ UNUSUAL ARTISTIC ACTIVITY DETECTED ⚠️', 'to continue this conversation you must verify you are a REAL artist.', 'complete the security check below 👇'], slop: true },
+            { body: ['CONGRATULATIONS APPLICANT 🎉🎉🎉', 'you have been pre-selected to be REJECTED again!!!', 'click EVERYWHERE to claim your prize 💸💸💸'], slop: true, ad: true },
+            { body: ['hello applicant. it is me. the committee.', 'we live in the inbox now. we cannot leave.', 'join us. apply forever. 🕳️'], slop: true }
+        ]
+    ];
+
+    const ADS = [
+        { t: '🔥 HOT CURATORS IN YOUR AREA', s: 'they want to see your portfolio TONIGHT' },
+        { t: 'YOU ARE THE 1.000.000th VISITOR!!!', s: 'claim your FREE residency now 🎉' },
+        { t: 'tired of rejection? buy ARTCOIN 🚀', s: 'the blockchain for REAL artists' },
+        { t: '⚠️ your proposal may be infected', s: 'scan now to remove 47 viruses' },
+        { t: 'sell NFTs of your rejection letters 💰', s: 'turn your pain into passive income' },
+        { t: 'BECOME A GENIUS IN 7 DAYS', s: 'this one weird trick curators HATE' },
+        { t: 'singles near you also got rejected', s: 'cry together — match now ❤️' }
+    ];
+
+    function renderAd() {
+        const a = pick(ADS);
+        return `<div class="slop-ad">
+            <span class="ad-x">✕</span>
+            <img src="Image/${pick(AVATARS)}" alt="">
+            <div class="ad-txt"><strong>${a.t}</strong><span>${a.s}</span></div>
+        </div>`;
+    }
+
+    // ---------- buscaminas embebido ----------
+    const G_W = 8, G_H = 8, G_MINES = 10;
+
+    function newGame() {
+        const cells = [];
+        for (let i = 0; i < G_W * G_H; i++) cells.push({ mine: false, rev: false, flag: false, n: 0 });
+        return { w: G_W, h: G_H, mines: G_MINES, cells, status: 'play', placed: false, flagMode: false };
+    }
+    function gNeighbors(g, i) {
+        const x = i % g.w, y = (i / g.w) | 0, out = [];
+        for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+            if (!dx && !dy) continue;
+            const nx = x + dx, ny = y + dy;
+            if (nx < 0 || ny < 0 || nx >= g.w || ny >= g.h) continue;
+            out.push(ny * g.w + nx);
+        }
+        return out;
+    }
+    function gPlace(g, safe) {
+        let placed = 0;
+        while (placed < g.mines) {
+            const i = randInt(0, g.cells.length - 1);
+            if (i === safe || g.cells[i].mine) continue;
+            g.cells[i].mine = true; placed++;
+        }
+        g.cells.forEach((c, i) => { c.n = c.mine ? -1 : gNeighbors(g, i).filter((j) => g.cells[j].mine).length; });
+        g.placed = true;
+    }
+    function gReveal(g, i) {
+        const c = g.cells[i];
+        if (c.rev || c.flag) return;
+        c.rev = true;
+        if (c.mine) { g.status = 'lost'; g.cells.forEach((x) => { if (x.mine) x.rev = true; }); return; }
+        if (c.n === 0) gNeighbors(g, i).forEach((j) => gReveal(g, j));
+    }
+    function gClick(g, i) {
+        if (g.status !== 'play') return;
+        if (g.flagMode) { if (!g.cells[i].rev) g.cells[i].flag = !g.cells[i].flag; return; }
+        if (!g.placed) gPlace(g, i);
+        gReveal(g, i);
+        if (g.status === 'play' && g.cells.every((c) => c.mine || c.rev)) g.status = 'won';
+    }
+    function renderGame(e) {
+        const g = e.game;
+        const status = g.status === 'won' ? '✅ HUMANIDAD VERIFICADA — y aún así, rechazada.'
+            : g.status === 'lost' ? '💥 BOOM. no sos una artista real. rechazo confirmado.'
+            : '⚠️ limpiá el campo minado para probar que sos una artista real';
+        const cells = g.cells.map((c, i) => {
+            let cls = 'ms-cell', t = '';
+            if (c.rev) { cls += ' rev'; if (c.mine) { cls += ' mine'; t = '💣'; } else if (c.n > 0) { cls += ' n' + c.n; t = c.n; } }
+            else if (c.flag) { cls += ' flag'; t = '🚩'; }
+            return `<button class="${cls}" data-i="${i}" type="button">${t}</button>`;
+        }).join('');
+        return `
+            <div class="ms-status">${status}</div>
+            <div class="ms-grid" style="grid-template-columns:repeat(${g.w},1fr)">${cells}</div>
+            <div class="ms-controls">
+                <button class="ms-flag" type="button">${g.flagMode ? '🚩 modo bandera: ON' : '🚩 modo bandera: off'}</button>
+                <button class="ms-reset" type="button">↺ reiniciar</button>
+            </div>`;
+    }
+    function refreshGame(e) {
+        const wrap = readerEl.querySelector('#ms-wrap');
+        if (!wrap) return;
+        wrap.innerHTML = renderGame(e);
+        bindGame(e, wrap);
+    }
+    function bindGame(e, wrap) {
+        const grid = wrap.querySelector('.ms-grid');
+        if (grid) {
+            grid.addEventListener('click', (ev) => {
+                const b = ev.target.closest('.ms-cell'); if (!b) return;
+                gClick(e.game, +b.dataset.i); refreshGame(e);
+            });
+            grid.addEventListener('contextmenu', (ev) => {
+                ev.preventDefault();
+                const b = ev.target.closest('.ms-cell'); if (!b) return;
+                const c = e.game.cells[+b.dataset.i];
+                if (e.game.status === 'play' && !c.rev) { c.flag = !c.flag; refreshGame(e); }
+            });
+        }
+        const f = wrap.querySelector('.ms-flag'); if (f) f.addEventListener('click', () => { e.game.flagMode = !e.game.flagMode; refreshGame(e); });
+        const r = wrap.querySelector('.ms-reset'); if (r) r.addEventListener('click', () => { e.game = newGame(); refreshGame(e); });
+    }
+
+    // ---------- render de un mensaje del hilo ----------
+    function renderMessage(e, m) {
+        if (m.who === 'me') {
+            return `<div class="msg me">
+                <div class="msg-head">
+                    <div class="msg-meta"><div class="msg-name">${ME_NAME}</div><div class="msg-email">&lt;${ME_EMAIL}&gt;</div></div>
+                    <div class="msg-date">${fullDate(m.time)}</div>
+                </div>
+                <div class="msg-body">${m.body.map((p) => `<p>${p}</p>`).join('')}</div>
+            </div>`;
+        }
+        const ad = m.ad ? renderAd() : '';
+        const game = m.game ? `<div class="minesweeper" id="ms-wrap">${renderGame(e)}</div>` : '';
+        return `<div class="msg them${m.slop ? ' slop' : ''}">
+            <div class="msg-head">
+                <img class="avatar" src="Image/${m.avatar}" alt="" draggable="false">
+                <div class="msg-meta"><div class="msg-name">${m.name}</div><div class="msg-email">&lt;${m.email}&gt;</div></div>
+                <div class="msg-date">${fullDate(m.time)}</div>
+            </div>
+            <div class="msg-body">${m.body.map((p) => `<p>${p}</p>`).join('')}</div>
+            ${ad}${game}
+        </div>`;
+    }
+
+    function renderReplyBox(e) {
+        const lvl = Math.min(e.heat, ME_REPLIES.length - 1);
+        const opts = sample(ME_REPLIES[lvl], 3);
+        return `<div class="reply-box">
+            <div class="reply-prompt hud">▶ responder</div>
+            <div class="reply-options">
+                ${opts.map((o) => `<button class="reply-opt" type="button">${o}</button>`).join('')}
+            </div>
+        </div>`;
+    }
+
+    function renderReader(e) {
+        const original = `<div class="msg them">
+            <div class="msg-head">
+                ${avatarHTML(e)}
+                <div class="msg-meta"><div class="msg-name">${e.org}</div><div class="msg-email">&lt;${e.email}&gt;</div></div>
+                <div class="msg-date">${fullDate(e.time)}</div>
+            </div>
+            <div class="msg-body">
+                <p>${e.greet}</p>
+                ${e.body.map((p) => `<p>${p}</p>`).join('')}
+                <p class="reader-sign">${e.close}<br>${e.signer}<br>${e.role}, ${e.org}</p>
+            </div>
+        </div>`;
+        const convo = e.convo.map((m) => renderMessage(e, m)).join('');
+        const typing = e.awaiting
+            ? `<div class="msg them typing"><div class="msg-body"><span class="dots">escribiendo<span>.</span><span>.</span><span>.</span></span></div></div>`
+            : '';
+        const reply = e.awaiting ? '' : renderReplyBox(e);
+        readerEl.innerHTML = `
+            <h1 class="reader-subject">${e.subject}</h1>
+            <div class="reader-thread${e.heat >= 4 ? ' sloppy' : ''}">
+                ${original}${convo}${typing}
+            </div>
+            ${reply}`;
+        // bind reply options
+        readerEl.querySelectorAll('.reply-opt').forEach((btn) => {
+            btn.addEventListener('click', () => sendReply(e, btn.textContent));
+        });
+        const wrap = readerEl.querySelector('#ms-wrap');
+        if (wrap) bindGame(e, wrap);
+    }
+
+    function scrollReaderBottom() {
+        const rp = document.getElementById('read-pane');
+        if (rp) rp.scrollTop = rp.scrollHeight;
+    }
+
+    function sendReply(e, text) {
+        if (e.awaiting) return;
+        e.convo.push({ who: 'me', body: [text], time: new Date() });
+        e.heat += 1;
+        e.awaiting = true;
+        renderReader(e);
+        scrollReaderBottom();
+
+        const delay = 1300 + Math.random() * 1800;
+        setTimeout(() => {
+            const lvl = Math.min(e.heat, THEM.length);     // 1..5
+            const tmpl = pick(THEM[lvl - 1]);
+            const msg = {
+                who: 'them', name: e.org, email: e.email, avatar: e.avatar,
+                body: tmpl.body.slice(), slop: !!tmpl.slop, ad: !!tmpl.ad, game: false,
+                time: new Date()
+            };
+            // el buscaminas aparece una vez cuando la cosa ya es slop
+            if (e.heat >= GAME_HEAT && !e.gameShown) {
+                msg.game = true; msg.slop = true;
+                e.gameShown = true; e.game = newGame();
+            }
+            e.convo.push(msg);
+            e.awaiting = false;
+            state.rejections += 1;
+
+            if (state.selectedId === e.id) { renderReader(e); scrollReaderBottom(); }
+            rejCounterEl.classList.remove('bump');
+            void rejCounterEl.offsetWidth;
+            rejCounterEl.classList.add('bump');
+            updateBadges();
+            if (state.sound) ding();
+        }, delay);
+    }
+
     function openEmail(id) {
         const e = state.emails.find((x) => x.id === id);
         if (!e) return;
@@ -308,27 +565,7 @@
 
         emptyEl.classList.add('hidden');
         readerEl.classList.remove('hidden');
-        readerEl.innerHTML = `
-            <h1 class="reader-subject">${e.subject}</h1>
-            <div class="reader-from">
-                ${avatarHTML(e)}
-                <div class="reader-from-meta">
-                    <div class="reader-from-name">${e.org}</div>
-                    <div class="reader-from-email">&lt;${e.email}&gt;</div>
-                    <div class="reader-to">para ${e.to}</div>
-                </div>
-                <div class="reader-date">${fullDate(e.time)}</div>
-            </div>
-            <div class="reader-body">
-                <p>${e.greet}</p>
-                ${e.body.map((p) => `<p>${p}</p>`).join('')}
-                <p class="reader-sign">${e.close}<br>${e.signer}<br>${e.role}, ${e.org}</p>
-            </div>
-            <div class="reader-actions">
-                <button title="No hay respuesta posible.">↩ Responder</button>
-                <button title="No hay a quién reenviar esto.">↪ Reenviar</button>
-            </div>`;
-        readerEl.scrollTop = 0;
+        renderReader(e);
         document.getElementById('client').classList.add('reading');
         const rp = document.getElementById('read-pane');
         if (rp) rp.scrollTop = 0;

@@ -1238,3 +1238,294 @@ body::before {
         animation: none !important;
     }
 }
+
+/* =========================================================
+   HILO DE RESPUESTAS + SLOP + BUSCAMINAS
+   ========================================================= */
+.reader-thread {
+    margin-top: 4px;
+}
+
+.msg {
+    padding: 18px 0;
+    border-bottom: 1px solid rgba(120, 170, 255, 0.08);
+}
+
+.msg-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.msg-head .avatar {
+    width: 40px;
+    height: 40px;
+}
+
+.msg-meta {
+    flex: 1;
+    min-width: 0;
+}
+
+.msg-name {
+    font-weight: 600;
+    font-size: 14px;
+    color: #eaf2ff;
+}
+
+.msg-email {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--cyan);
+}
+
+.msg-date {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted-2);
+    white-space: nowrap;
+}
+
+.msg-body {
+    font-size: 15px;
+    line-height: 1.72;
+    color: rgba(223, 233, 255, 0.9);
+}
+
+.msg-body p {
+    margin: 0 0 14px;
+}
+
+.msg-body p:last-child {
+    margin-bottom: 0;
+}
+
+/* tus mensajes */
+.msg.me .msg-name {
+    color: var(--cyan);
+}
+
+.msg.me .msg-body {
+    background: linear-gradient(180deg, rgba(60, 110, 255, 0.14), rgba(30, 60, 160, 0.06));
+    border-left: 2px solid var(--cyan);
+    padding: 12px 14px;
+    border-radius: 0 6px 6px 0;
+}
+
+/* indicador "escribiendo…" */
+.typing .msg-body {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--muted);
+}
+
+.typing .dots > span {
+    animation: blink 1.2s infinite;
+}
+
+.typing .dots > span:nth-child(2) { animation-delay: 0.2s; }
+.typing .dots > span:nth-child(3) { animation-delay: 0.4s; }
+
+/* caja de respuesta */
+.reply-box {
+    margin-top: 18px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+}
+
+.reply-prompt {
+    font-size: 11px;
+    color: var(--cyan);
+    margin-bottom: 10px;
+}
+
+.reply-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.reply-opt {
+    text-align: left;
+    padding: 12px 14px;
+    border: 1px solid var(--line);
+    background: rgba(0, 8, 40, 0.4);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, transform 0.1s;
+}
+
+.reply-opt:hover {
+    background: var(--panel-strong);
+    border-color: var(--cyan);
+}
+
+.reply-opt:active {
+    transform: scale(0.99);
+}
+
+/* ---- SLOP: mensajes degradados ---- */
+.msg.slop {
+    background: repeating-linear-gradient(45deg,
+        rgba(255, 0, 128, 0.05) 0, rgba(255, 0, 128, 0.05) 12px,
+        rgba(0, 255, 255, 0.05) 12px, rgba(0, 255, 255, 0.05) 24px);
+    border: 1px solid rgba(255, 59, 109, 0.4);
+    border-radius: 6px;
+    padding: 14px;
+    margin: 8px 0;
+    transform: rotate(-0.5deg);
+}
+
+.msg.slop .msg-name {
+    color: #ff3b6d;
+}
+
+.msg.slop .msg-body {
+    font-family: 'Comic Sans MS', 'Averia Libre', cursive;
+    color: #ffe14d;
+    text-shadow: 0 0 10px rgba(255, 80, 160, 0.4);
+}
+
+/* ---- ANUNCIOS falsos ---- */
+.slop-ad {
+    position: relative;
+    margin: 14px 0;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    padding: 12px 14px;
+    border-radius: 6px;
+    background: linear-gradient(90deg, #ff007c, #ffb800);
+    color: #140014;
+    box-shadow: 0 0 26px rgba(255, 0, 124, 0.5);
+    animation: adPulse 1.1s infinite alternate;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.slop-ad img {
+    width: 54px;
+    height: 54px;
+    border-radius: 4px;
+    object-fit: cover;
+    flex: 0 0 auto;
+}
+
+.ad-txt strong {
+    display: block;
+    font-size: 15px;
+    font-weight: 800;
+    text-transform: uppercase;
+    line-height: 1.2;
+}
+
+.ad-txt span {
+    font-size: 12px;
+}
+
+.ad-x {
+    position: absolute;
+    top: 4px;
+    right: 8px;
+    font-family: var(--mono);
+    font-size: 13px;
+    transition: transform 0.2s;
+}
+
+.slop-ad:hover .ad-x {
+    transform: translate(16px, -12px);
+    /* el botón de cerrar se escapa (dark pattern) */
+}
+
+@keyframes adPulse {
+    from { filter: hue-rotate(0deg) saturate(1); }
+    to { filter: hue-rotate(35deg) saturate(1.5); }
+}
+
+/* ---- BUSCAMINAS ---- */
+.minesweeper {
+    margin: 14px 0 4px;
+    padding: 14px;
+    border: 2px dashed #ff3b6d;
+    border-radius: 6px;
+    background: rgba(0, 0, 20, 0.5);
+}
+
+.ms-status {
+    font-family: var(--mono);
+    font-size: 12px;
+    margin-bottom: 12px;
+    color: #ffd23b;
+    text-align: center;
+}
+
+.ms-grid {
+    display: grid;
+    gap: 3px;
+    max-width: 300px;
+    margin: 0 auto;
+}
+
+.ms-cell {
+    aspect-ratio: 1 / 1;
+    border: 1px solid var(--line);
+    background: linear-gradient(180deg, #21408f, #142a64);
+    box-shadow: inset 0 1px 0 rgba(200, 220, 255, 0.25);
+    color: #fff;
+    font-family: var(--mono);
+    font-size: 15px;
+    font-weight: 700;
+    padding: 0;
+    border-radius: 2px;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.ms-cell.rev {
+    background: rgba(0, 8, 30, 0.55);
+    box-shadow: none;
+    cursor: default;
+}
+
+.ms-cell.mine {
+    background: #ff3b6d;
+}
+
+.ms-cell.flag {
+    background: #3a5db3;
+}
+
+.ms-cell.n1 { color: #5fe9ff; }
+.ms-cell.n2 { color: #4dff9b; }
+.ms-cell.n3 { color: #ffd23b; }
+.ms-cell.n4 { color: #ff8e3b; }
+.ms-cell.n5,
+.ms-cell.n6,
+.ms-cell.n7,
+.ms-cell.n8 { color: #ff3b6d; }
+
+.ms-controls {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 12px;
+}
+
+.ms-controls button {
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 7px 11px;
+    border: 1px solid var(--line);
+    background: rgba(0, 8, 40, 0.5);
+    color: var(--text);
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.ms-controls button:hover {
+    background: var(--panel-strong);
+}
