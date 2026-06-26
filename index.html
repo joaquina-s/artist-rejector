@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Artist Rejector</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Averia+Libre:ital,wght@0,300;0,400;0,700;1,400;1,700&family=Inter:wght@400;500;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <!-- ======================= BOOT / LANDING ======================= -->
+    <div id="landing">
+        <div class="boot-frame">
+            <pre id="boot-log" class="hud"></pre>
+            <h1 id="landing-title" class="glitch" data-text="ARTIST&#10;REJECTOR">ARTIST<br>REJECTOR</h1>
+            <p id="landing-subtitle">
+                Te conectás a la Red. Postulás. Esperás.<br>
+                Llega el rechazo. Otra vez. Para siempre.
+            </p>
+            <button id="enter-button">CONECTAR A LA RED</button>
+            <p id="landing-foot" class="hud">CLOSE&nbsp;THE&nbsp;WORLD&nbsp;&nbsp;·&nbsp;&nbsp;OPEN&nbsp;THE&nbsp;nEXT</p>
+        </div>
+    </div>
+
+    <!-- ======================= MAIL CLIENT ======================= -->
+    <div id="app" class="hidden">
+
+        <!-- Topbar (UI bar) -->
+        <header id="topbar" class="bar">
+            <div class="brand">
+                <span class="brand-dot"></span>
+                <span class="brand-name glitch" data-text="ARTIST_REJECTOR">ARTIST_REJECTOR</span>
+                <span class="brand-tag hud">navi://inbox</span>
+            </div>
+            <div class="topbar-right">
+                <div id="rejection-counter" title="Rechazos acumulados en tu carrera">
+                    <span class="rejection-label hud">REJECTED</span>
+                    <span id="rejection-count">0</span>
+                </div>
+                <button id="sound-toggle" title="Sonido de notificación">🔊</button>
+            </div>
+        </header>
+
+        <div id="client">
+            <!-- Sidebar -->
+            <nav id="sidebar">
+                <button class="compose" disabled title="No hay nada que enviar.">✎ REDACTAR</button>
+                <ul class="folders">
+                    <li class="folder active" data-folder="inbox">
+                        <span class="f-icon">▣</span>
+                        <span class="f-name">Recibidos</span>
+                        <span class="f-badge" id="inbox-badge">0</span>
+                    </li>
+                    <li class="folder" data-folder="starred">
+                        <span class="f-icon">✦</span>
+                        <span class="f-name">Destacados</span>
+                    </li>
+                    <li class="folder" data-folder="sent">
+                        <span class="f-icon">➤</span>
+                        <span class="f-name">Enviados</span>
+                    </li>
+                    <li class="folder" data-folder="archive">
+                        <span class="f-icon">▤</span>
+                        <span class="f-name">Archivo</span>
+                    </li>
+                    <li class="folder" data-folder="trash">
+                        <span class="f-icon">⌧</span>
+                        <span class="f-name">Papelera</span>
+                    </li>
+                </ul>
+                <div class="sidebar-foot">
+                    <div class="node-readout hud">
+                        <div>NODE&nbsp;&nbsp;: 404</div>
+                        <div>LAYER&nbsp;: 07</div>
+                        <div>PROTO&nbsp;: REJECT</div>
+                    </div>
+                    <div class="quota">
+                        <div class="quota-bar"><span id="quota-fill"></span></div>
+                        <small id="quota-text" class="hud">memory: ∞ rejections</small>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Email list -->
+            <section id="list-pane">
+                <div class="list-head bar">
+                    <span id="list-title">Recibidos</span>
+                    <span id="list-sub" class="hud"></span>
+                </div>
+                <ul id="email-list"></ul>
+            </section>
+
+            <!-- Reading pane -->
+            <section id="read-pane">
+                <button id="reader-back" class="hud" type="button">← BANDEJA</button>
+                <div id="empty-state">
+                    <div class="empty-mark">✉</div>
+                    <p>Seleccioná un mensaje para leer tu rechazo.</p>
+                    <p class="hud dim">no signal · select a node</p>
+                </div>
+                <article id="reader" class="hidden"></article>
+            </section>
+        </div>
+
+        <!-- Status bar (Lain HUD) -->
+        <footer id="statusbar" class="bar hud">
+            <span class="st-link">● WIRED</span>
+            <span>PROTOCOL//REJECT</span>
+            <span id="st-feed">incoming…</span>
+            <span class="st-spacer"></span>
+            <span id="st-clock">--:--:--</span>
+            <span class="st-present">present day. present time.</span>
+        </footer>
+    </div>
+
+    <!-- New-mail toast -->
+    <div id="toast" class="hidden"></div>
+
+    <!-- ======================= CRT / TV OVERLAYS ======================= -->
+    <div class="fx fx-grain"></div>
+    <div class="fx fx-scanlines"></div>
+    <div class="fx fx-rollbar"></div>
+    <div class="fx fx-vignette"></div>
+    <div class="fx fx-flicker"></div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>

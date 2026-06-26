@@ -1,0 +1,7 @@
+# dev tooling / local preview (no necesario para la web pública)
+.claude/
+
+# OS junk
+Thumbs.db
+desktop.ini
+.DS_Store
