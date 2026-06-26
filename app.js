@@ -311,14 +311,44 @@
 
     const sample = (arr, n) => arr.slice().sort(() => Math.random() - 0.5).slice(0, n);
 
-    // tus opciones de respuesta (tu voz), más desquiciadas a mayor heat
+    // tus opciones de respuesta (tu voz) — arco de desesperación creciente
     const ME_REPLIES = [
-        ['Gracias por avisarme.', '¿Podrían darme algún feedback?', '¿Habrá nuevas oportunidades pronto?', 'Entiendo, gracias igual.'],
-        ['Me encantaría recibir feedback, en serio.', '¿Alguien llegó a leer mi propuesta?', 'Es el rechazo número 248 este mes.', '¿Puedo volver a aplicar?'],
-        ['¿Abrieron el archivo siquiera?', 'Dediqué mi vida entera a esto.', 'Ok. Ok ok ok.', '¿En base a qué deciden?'],
-        ['No estoy enojada, estoy cansada.', '¿QUÉ QUIEREN DE MÍ?', '...', 'respondan algo humano por favor'],
-        ['🙂', 'voy a gritar al vacío', 'unsubscribe', 'ya ni sé por qué escribo'],
-        ['JAJAJAJA', 'dame el buscaminas entonces', 'acepto mi destino 💀', 'somos lo mismo vos y yo']
+        [ // 0 — compuesta, con esperanza
+            'Gracias por avisarme.',
+            'Le dediqué muchísimo tiempo a esta aplicación.',
+            '¿Podrían reconsiderar mi postulación?',
+            '¿Habrá otra oportunidad pronto?'
+        ],
+        [ // 1 — ansiosa, justificándose
+            'Trabajé meses en esta propuesta, en serio.',
+            '¿Podrían leerla una vez más? Solo una.',
+            'Puedo reescribir lo que haga falta.',
+            'Necesito esto. De verdad lo necesito.'
+        ],
+        [ // 2 — suplicando
+            'Por favor. Mi carrera depende de esto.',
+            'Hice TODO lo que pedía la convocatoria.',
+            'Es lo único que tengo. No tengo otra cosa.',
+            '¿Qué hice mal? Decime y lo cambio.'
+        ],
+        [ // 3 — desesperada, mayúsculas asomando
+            'POR FAVOR. MI DESTINO DEPENDE DE ESTO.',
+            'GASTÉ MESES EN ESTO. NO DORMÍ. POR FAVOR.',
+            'Te lo ruego. Lo que sea. Lo hago.',
+            'no me hagas esto de nuevo por favor'
+        ],
+        [ // 4 — quebrándose
+            'SE LOS SUPLICO. ACÉPTENME. POR FAVOR.',
+            'puedo trabajar gratis. puedo hacer lo que sea.',
+            'NO AGUANTO UN RECHAZO MÁS. POR FAVOR.',
+            'toda mi vida fue para este momento'
+        ],
+        [ // 5 — desesperación total
+            'ACÉPTENMEACÉPTENMEACÉPTENMEACÉPTENME',
+            'VENDO MI ALMA POR UNA RESIDENCIA 🙏',
+            'POR FAVOR POR FAVOR POR FAVOR POR FAVOR',
+            'no soy nada sin esto. NADA.'
+        ]
     ];
 
     // respuestas de ELLOS por nivel (0=primer reply). slop/ad opcional.
