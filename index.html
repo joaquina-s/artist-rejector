@@ -19,12 +19,13 @@
         <header id="topbar" class="bar">
             <div class="brand">
                 <span class="brand-dot"></span>
-                <span class="brand-name glitch" data-text="ARTIST_REJECTOR">ARTIST_REJECTOR</span>
+                <span class="brand-name">ARTIST_REJECTOR</span>
                 <span class="brand-tag hud">navi://inbox</span>
             </div>
             <div class="topbar-right">
-                <div id="rejection-counter" title="Rechazos acumulados en tu carrera">
-                    <span class="rejection-label hud">REJECTED</span>
+                <button id="lang-toggle" class="hud" title="Cambiar idioma / Switch language">EN</button>
+                <div id="rejection-counter" title="Rechazos acumulados">
+                    <span class="rejection-label hud" data-i18n="rejected">RECHAZOS</span>
                     <span id="rejection-count">0</span>
                 </div>
                 <button id="sound-toggle" title="Sonido de notificación">🔊</button>
@@ -34,39 +35,33 @@
         <div id="client">
             <!-- Sidebar -->
             <nav id="sidebar">
-                <button class="compose" disabled title="No hay nada que enviar.">✎ REDACTAR</button>
+                <button class="compose" disabled data-i18n="compose">✎ REDACTAR</button>
                 <ul class="folders">
                     <li class="folder active" data-folder="inbox">
                         <span class="f-icon">▣</span>
-                        <span class="f-name">Recibidos</span>
+                        <span class="f-name" data-i18n="inbox">Recibidos</span>
                         <span class="f-badge" id="inbox-badge">0</span>
-                    </li>
-                    <li class="folder" data-folder="starred">
-                        <span class="f-icon">✦</span>
-                        <span class="f-name">Destacados</span>
                     </li>
                     <li class="folder" data-folder="sent">
                         <span class="f-icon">➤</span>
-                        <span class="f-name">Enviados</span>
+                        <span class="f-name" data-i18n="sent">Enviados</span>
                     </li>
-                    <li class="folder" data-folder="archive">
-                        <span class="f-icon">▤</span>
-                        <span class="f-name">Archivo</span>
-                    </li>
-                    <li class="folder" data-folder="trash">
-                        <span class="f-icon">⌧</span>
-                        <span class="f-name">Papelera</span>
+                    <li class="folder" data-folder="spam">
+                        <span class="f-icon">⚠</span>
+                        <span class="f-name" data-i18n="spam">Spam</span>
+                        <span class="f-badge" id="spam-badge">0</span>
                     </li>
                 </ul>
                 <div class="sidebar-foot">
-                    <div class="node-readout hud">
-                        <div>NODE&nbsp;&nbsp;: 404</div>
-                        <div>LAYER&nbsp;: 07</div>
-                        <div>PROTO&nbsp;: REJECT</div>
+                    <div id="video-box">
+                        <iframe id="bg-video"
+                            src="https://www.youtube-nocookie.com/embed/fg3cXm7aaTo?autoplay=1&mute=1&loop=1&playlist=fg3cXm7aaTo&controls=0&showinfo=0&modestbranding=1&rel=0&enablejsapi=1&playsinline=1&disablekb=1"
+                            frameborder="0" allow="autoplay; encrypted-media" referrerpolicy="no-referrer"></iframe>
+                        <button id="video-sound" type="button" title="sonido del video">🔇</button>
                     </div>
                     <div class="quota">
                         <div class="quota-bar"><span id="quota-fill"></span></div>
-                        <small id="quota-text" class="hud">memory: ∞ rejections</small>
+                        <small id="quota-text" class="hud" data-i18n="quota">memoria: ∞ rechazos</small>
                     </div>
                 </div>
             </nav>
@@ -82,11 +77,11 @@
 
             <!-- Reading pane -->
             <section id="read-pane">
-                <button id="reader-back" class="hud" type="button">← BANDEJA</button>
+                <button id="reader-back" class="hud" type="button" data-i18n="back">← BANDEJA</button>
                 <div id="empty-state">
                     <div class="empty-mark">✉</div>
-                    <p>Seleccioná un mensaje para leer tu rechazo.</p>
-                    <p class="hud dim">no signal · select a node</p>
+                    <p data-i18n="emptyMain">Seleccioná un mensaje para leer.</p>
+                    <p class="hud dim" data-i18n="emptySub">no signal · elegí un nodo</p>
                 </div>
                 <article id="reader" class="hidden"></article>
             </section>
