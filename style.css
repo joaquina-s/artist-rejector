@@ -597,8 +597,8 @@ body::before {
     position: relative;
     transition: background 0.16s, transform 0.16s, border-color 0.16s;
     animation: slideIn 0.4s ease;
-    /* forma ovalada / un poco deforme */
-    border-radius: 46% 54% 50% 50% / 62% 58% 42% 38%;
+    /* cuadrado con puntas redondeadas */
+    border-radius: 14px;
 }
 
 @keyframes slideIn {
@@ -643,7 +643,9 @@ body::before {
 
 .email-sender {
     font-size: 13.5px;
-    color: var(--muted);
+    color: #bcd8ff;
+    -webkit-text-stroke: 0.5px rgba(255, 255, 255, 0.55);
+    text-shadow: 0 0 6px rgba(255, 255, 255, 0.55), 0 0 12px rgba(150, 200, 255, 0.45);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -674,10 +676,15 @@ body::before {
     text-overflow: ellipsis;
 }
 
-.email-item.unread .email-sender,
 .email-item.unread .email-subject {
     color: #fff;
     font-weight: 700;
+}
+
+.email-item.unread .email-sender {
+    color: #dceaff;
+    font-weight: 700;
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.7), 0 0 16px rgba(150, 200, 255, 0.5);
 }
 
 .email-item.unread::before {
@@ -1433,7 +1440,7 @@ body::before {
     min-height: 130px;
     padding: 14px 16px;
     border-radius: 6px;
-    background: #000 url('Image/ad-bg.png') center / 100% 100% no-repeat;
+    background: #000 url('Image/studyingMyPain.png') center / 100% 100% no-repeat;
     color: #fff;
     box-shadow: 0 0 26px rgba(25, 230, 255, 0.35);
     animation: adPulse 1.4s infinite alternate;
@@ -1583,10 +1590,11 @@ body::before {
     background: rgba(0, 8, 40, 0.5);
     border: 1px solid var(--bar-hi);
     color: var(--cyan);
-    font-size: 12px;
+    font-size: 15px;
+    font-weight: 700;
     letter-spacing: 1px;
-    padding: 6px 12px;
-    border-radius: 20px;
+    padding: 9px 18px;
+    border-radius: 22px;
     cursor: pointer;
     transition: background 0.2s, color 0.2s;
 }
@@ -1607,42 +1615,95 @@ body::before {
     box-shadow: inset 0 0 24px rgba(0, 0, 20, 0.8);
 }
 
-#bg-video {
-    position: absolute;
-    /* escalar para tapar la caja y ocultar controles/branding de YT */
-    top: 50%;
-    left: 50%;
-    width: 300%;
-    height: 300%;
-    transform: translate(-50%, -50%);
-    border: 0;
-    pointer-events: none;
-}
-
-#video-sound {
-    position: absolute;
-    bottom: 6px;
-    right: 6px;
-    z-index: 2;
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    border: 1px solid var(--bar-hi);
-    background: rgba(0, 8, 40, 0.75);
-    color: #fff;
-    font-size: 12px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-}
-
-#video-sound:hover {
-    background: var(--panel-strong);
+#bg-gif {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 /* mensajes de spam: un dejo verde de "phishing" */
 .msg.spammy .msg-name {
     color: #6cff9e;
+}
+
+/* =========================================================
+   WORDLE
+   ========================================================= */
+.wd-hint {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-align: center;
+    color: var(--muted-2);
+    margin-bottom: 12px;
+}
+
+.wd-row {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    margin-bottom: 6px;
+}
+
+.wd-cell {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--mono);
+    font-size: 20px;
+    font-weight: 700;
+    text-transform: uppercase;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    color: #061018;
+    background: rgba(0, 8, 30, 0.5);
+}
+
+.wd-cell.g { background: #4dff9b; }
+.wd-cell.y { background: #ffd23b; }
+.wd-cell.x { background: #33507f; color: #cfe0ff; }
+
+.wd-input {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 12px;
+}
+
+.wd-field {
+    width: 150px;
+    padding: 9px 12px;
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    background: rgba(0, 8, 40, 0.5);
+    color: #fff;
+    font-family: var(--mono);
+    font-size: 16px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    text-align: center;
+    outline: none;
+}
+
+.wd-field:focus {
+    border-color: var(--cyan);
+}
+
+.wd-go,
+.wd-reset {
+    font-family: var(--mono);
+    font-size: 14px;
+    padding: 8px 16px;
+    border: 1px solid var(--line);
+    background: rgba(0, 8, 40, 0.5);
+    color: var(--text);
+    border-radius: 20px;
+    cursor: pointer;
+}
+
+.wd-go:hover,
+.wd-reset:hover {
+    background: var(--panel-strong);
 }

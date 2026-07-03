@@ -179,7 +179,7 @@
 
     // ---------- state ----------
     const state = {
-        lang: 'es',
+        lang: 'en',
         inbox: [],
         sent: [],
         spam: [],
@@ -203,6 +203,8 @@
             msLose: '💥 BOOM. no sos una artista real. rechazo confirmado.',
             msPlay: '⚠️ limpiá el campo minado para probar que sos una artista real',
             msFlagOn: '🚩 modo bandera: ON', msFlagOff: '🚩 modo bandera: off', msReset: '↺ reiniciar',
+            wPlay: '⌨️ adiviná la palabra del rechazo', wWin: '✅ acertaste — y aún así, rechazada.',
+            wLose: '💥 ni la palabra pudiste. rechazo confirmado.', wHint: 'pista: empieza con "{L}"',
             typing: 'escribiendo'
         },
         en: {
@@ -216,6 +218,8 @@
             msLose: '💥 BOOM. not a real artist. rejection confirmed.',
             msPlay: '⚠️ clear the minefield to prove you are a real artist',
             msFlagOn: '🚩 flag mode: ON', msFlagOff: '🚩 flag mode: off', msReset: '↺ reset',
+            wPlay: '⌨️ guess the rejection word', wWin: '✅ you guessed it — and still, rejected.',
+            wLose: '💥 you couldn’t even guess it. rejection confirmed.', wHint: 'hint: starts with "{L}"',
             typing: 'typing'
         }
     };
@@ -253,8 +257,7 @@
             [['ok. NECESITÁS dejar de escribirnos.', 'es la cuarta vez. te lo suplicamos 🙂'],
              ['no leímos tu propuesta.', 'nadie la leyó. NADIE LAS LEE.', 'seguí con tu vida por favor 🙏']],
             [['⚠️ ACTIVIDAD ARTÍSTICA INUSUAL DETECTADA ⚠️', 'para continuar esta conversación tenés que verificar que sos una artista REAL.', 'completá el control de seguridad abajo 👇'],
-             ['FELICITACIONES POSTULANTE 🎉🎉🎉', 'fuiste pre-seleccionada para ser RECHAZADA otra vez!!!', 'hacé click EN TODOS LADOS para reclamar tu premio 💸💸💸'],
-             ['hola postulante. soy yo. el comité.', 'ahora vivimos en la casilla. no podemos salir.', 'unite a nosotros. postulá para siempre. 🕳️']]
+             ['FELICITACIONES POSTULANTE 🎉🎉🎉', 'fuiste pre-seleccionada para ser RECHAZADA otra vez!!!', 'hacé click EN TODOS LADOS para reclamar tu premio 💸💸💸']]
         ],
         en: [
             [['Thank you for your message.', 'Please note that this inbox is not monitored and replies are generated automatically.', 'Your application has been retained for our records for a period of 0 days.'],
@@ -266,8 +269,7 @@
             [['ok. you NEED to stop emailing us.', 'this is the fourth time. we are begging you 🙂'],
              ['we did not read your proposal.', 'nobody read it. NOBODY READS THEM.', 'please move on with your life 🙏']],
             [['⚠️ UNUSUAL ARTISTIC ACTIVITY DETECTED ⚠️', 'to continue this conversation you must verify you are a REAL artist.', 'complete the security check below 👇'],
-             ['CONGRATULATIONS APPLICANT 🎉🎉🎉', 'you have been pre-selected to be REJECTED again!!!', 'click EVERYWHERE to claim your prize 💸💸💸'],
-             ['hello applicant. it is me. the committee.', 'we live in the inbox now. we cannot leave.', 'join us. apply forever. 🕳️']]
+             ['CONGRATULATIONS APPLICANT 🎉🎉🎉', 'you have been pre-selected to be REJECTED again!!!', 'click EVERYWHERE to claim your prize 💸💸💸']]
         ]
     };
     // flags alineados con THEM_TEXT[*][level][idx]
@@ -276,7 +278,7 @@
         [{}, { ad: true }],
         [{}, { ad: true }],
         [{ slop: true }, { slop: true, ad: true }],
-        [{ slop: true }, { slop: true, ad: true }, { slop: true }]
+        [{ slop: true }, { slop: true, ad: true }]
     ];
 
     // ---------- anuncios (fondo = imagen adjunta, estirada) ----------
@@ -315,9 +317,9 @@
             es: { subject: 'Interesado en adquirir tu obra “DIVER”', body: ['Hola, espero que estés muy bien.', 'Mi nombre es Peter Ibsen. Soy coleccionista de arte y curador. Vi tu perfil y tu trabajo en Instagram hace poco y quedé genuinamente impresionado.', 'Estoy interesado en adquirir la obra “DIVER” para mi colección personal.', 'Además, me encantaría hablar de la posibilidad de una edición digital o versión NFT de tu obra para nuestra plataforma de proyección basada en blockchain.', 'Sin ninguna presión — solo quería escribirte personalmente. Me encantaría escuchar tu opinión cuando tengas un momento.', 'Cariños,\nPeter Ibsen\nColeccionista de Arte y Curador'] }
         },
         {
-            from: 'Virginia Vanni — GALERIA AZUR', email: 'curatorial@galeria-azur.art', avatar: 'colorBH3.png',
-            en: { subject: 'Invitation: Berlin & Paris international exhibitions', body: ['My name is Virginia Vanni, and I am part of the Curatorial Department at GALERIA AZUR.', 'After reviewing your work, we would like to extend an invitation to collaborate with you in our upcoming international exhibitions in Berlin and Paris.', 'BERLIN — SESSION 03 Group Show (Aug 21 – Oct 16, 2026), directly during Berlin Art Week.', 'PARIS — Pop-Up Exhibition (Oct 17 – 30, 2026), opposite the Centre Pompidou, timed with Art Basel Paris.', 'Please note that participation in the program requires an entrance fee, which covers the comprehensive services and promotion outlined above.', 'Given the scale of this project, a prompt response would be greatly appreciated.', 'Warm regards,\nVirginia Vanni'] },
-            es: { subject: 'Invitación: exhibiciones internacionales en Berlín y París', body: ['Mi nombre es Virginia Vanni y formo parte del Departamento Curatorial de GALERIA AZUR.', 'Tras revisar tu trabajo, queremos extenderte una invitación a colaborar en nuestras próximas exhibiciones internacionales en Berlín y París.', 'BERLÍN — SESSION 03 Muestra Colectiva (21 ago – 16 oct 2026), justo durante la Berlin Art Week.', 'PARÍS — Exhibición Pop-Up (17 – 30 oct 2026), frente al Centre Pompidou, coincidiendo con Art Basel Paris.', 'Ten en cuenta que la participación en el programa requiere una cuota de inscripción, que cubre los servicios y la promoción descritos.', 'Dada la escala del proyecto, agradeceríamos una respuesta pronta.', 'Saludos cordiales,\nVirginia Vanni'] }
+            from: 'Curatorial Dept. — Galerie Méridian', email: 'curatorial@galerie-meridian.art', avatar: 'colorBH3.png',
+            en: { subject: 'Invitation: Berlin & Paris international exhibitions', body: ['We are writing from the Curatorial Department at Galerie Méridian.', 'After reviewing your work, we would like to extend an invitation to collaborate with you in our upcoming international exhibitions in Berlin and Paris.', 'BERLIN — Group Show (Aug 21 – Oct 16, 2026), during Berlin Art Week.', 'PARIS — Pop-Up Exhibition (Oct 17 – 30, 2026), near a major cultural landmark, timed with the autumn fairs.', 'Please note that participation in the program requires an entrance fee, which covers the comprehensive services and promotion outlined above.', 'Given the scale of this project, a prompt response would be greatly appreciated.', 'Warm regards,\nThe Curatorial Department'] },
+            es: { subject: 'Invitación: exhibiciones internacionales en Berlín y París', body: ['Te escribimos desde el Departamento Curatorial de Galerie Méridian.', 'Tras revisar tu trabajo, queremos extenderte una invitación a colaborar en nuestras próximas exhibiciones internacionales en Berlín y París.', 'BERLÍN — Muestra Colectiva (21 ago – 16 oct 2026), durante la Berlin Art Week.', 'PARÍS — Exhibición Pop-Up (17 – 30 oct 2026), cerca de un importante ícono cultural, coincidiendo con las ferias de otoño.', 'Ten en cuenta que la participación en el programa requiere una cuota de inscripción, que cubre los servicios y la promoción descritos.', 'Dada la escala del proyecto, agradeceríamos una respuesta pronta.', 'Saludos cordiales,\nEl Departamento Curatorial'] }
         },
         {
             from: 'ART GRANT OFFICE', email: 'winner@grant-disbursement.info', avatar: 'colorBH5.png',
@@ -515,7 +517,7 @@
     function newGame() {
         const cells = [];
         for (let i = 0; i < G_W * G_H; i++) cells.push({ mine: false, rev: false, flag: false, n: 0 });
-        return { w: G_W, h: G_H, mines: G_MINES, cells, status: 'play', placed: false, flagMode: false };
+        return { type: 'mines', w: G_W, h: G_H, mines: G_MINES, cells, status: 'play', placed: false, flagMode: false };
     }
     function gNeighbors(g, i) {
         const x = i % g.w, y = (i / g.w) | 0, out = [];
@@ -551,7 +553,7 @@
         gReveal(g, i);
         if (g.status === 'play' && g.cells.every((c) => c.mine || c.rev)) g.status = 'won';
     }
-    function renderGame(e) {
+    function renderMines(e) {
         const g = e.game;
         const status = g.status === 'won' ? t('msWin') : g.status === 'lost' ? t('msLose') : t('msPlay');
         const cells = g.cells.map((c, i) => {
@@ -568,13 +570,7 @@
                 <button class="ms-reset" type="button">${t('msReset')}</button>
             </div>`;
     }
-    function refreshGame(e) {
-        const wrap = readerEl.querySelector('#ms-wrap');
-        if (!wrap) return;
-        wrap.innerHTML = renderGame(e);
-        bindGame(e, wrap);
-    }
-    function bindGame(e, wrap) {
+    function bindMines(e, wrap) {
         const grid = wrap.querySelector('.ms-grid');
         if (grid) {
             grid.addEventListener('click', (ev) => {
@@ -590,6 +586,69 @@
         }
         const f = wrap.querySelector('.ms-flag'); if (f) f.addEventListener('click', () => { e.game.flagMode = !e.game.flagMode; refreshGame(e); });
         const r = wrap.querySelector('.ms-reset'); if (r) r.addEventListener('click', () => { e.game = newGame(); refreshGame(e); });
+    }
+
+    // =====================================================
+    //  WORDLE (fácil) — palabras del rechazo
+    // =====================================================
+    const WORDLE_WORDS = {
+        en: ['SLOP', 'VOID', 'NOPE', 'FAIL', 'LOSS', 'NEXT', 'WAIT', 'COPE', 'VETO', 'NUMB'],
+        es: ['NADA', 'LUTO', 'SOLA', 'FILA', 'FRIO', 'VETO', 'RUGO', 'GRIS', 'CAOS', 'MUDO']
+    };
+    function newWordle() {
+        const word = pick(WORDLE_WORDS[L()]);
+        return { type: 'wordle', word, len: word.length, guesses: [], max: 8, status: 'play' };
+    }
+    function wordleEval(guess, word) {
+        const res = new Array(guess.length).fill('x');
+        const used = new Array(word.length).fill(false);
+        for (let i = 0; i < guess.length; i++) { if (guess[i] === word[i]) { res[i] = 'g'; used[i] = true; } }
+        for (let i = 0; i < guess.length; i++) {
+            if (res[i] === 'g') continue;
+            for (let j = 0; j < word.length; j++) { if (!used[j] && word[j] === guess[i]) { res[i] = 'y'; used[j] = true; break; } }
+        }
+        return res;
+    }
+    function renderWordle(e) {
+        const g = e.game;
+        const status = g.status === 'won' ? t('wWin') : g.status === 'lost' ? t('wLose') : t('wPlay');
+        const hint = fill(t('wHint'), { L: g.word[0] });
+        const rows = g.guesses.map((guess) => {
+            const ev = wordleEval(guess, g.word);
+            return `<div class="wd-row">` + guess.split('').map((ch, i) => `<span class="wd-cell ${ev[i]}">${ch}</span>`).join('') + `</div>`;
+        }).join('');
+        const controls = g.status === 'play'
+            ? `<div class="wd-input"><input class="wd-field" type="text" maxlength="${g.len}" autocomplete="off" autocapitalize="characters" spellcheck="false"><button class="wd-go" type="button">↵</button></div>`
+            : `<div class="ms-controls"><button class="wd-reset" type="button">${t('msReset')}</button></div>`;
+        return `<div class="ms-status">${status}</div><div class="wd-hint">${hint}</div>${rows}${controls}`;
+    }
+    function bindWordle(e, wrap) {
+        const field = wrap.querySelector('.wd-field');
+        const go = wrap.querySelector('.wd-go');
+        function submit() {
+            if (!field) return;
+            const guess = field.value.toUpperCase().replace(/[^A-ZÑÁÉÍÓÚÜ]/g, '');
+            if (guess.length !== e.game.len) return;
+            e.game.guesses.push(guess);
+            if (guess === e.game.word) e.game.status = 'won';
+            else if (e.game.guesses.length >= e.game.max) e.game.status = 'lost';
+            refreshGame(e);
+            const nf = readerEl.querySelector('.wd-field');
+            if (nf) nf.focus({ preventScroll: true });
+        }
+        if (go) go.addEventListener('click', submit);
+        if (field) field.addEventListener('keydown', (ev) => { if (ev.key === 'Enter') { ev.preventDefault(); submit(); } });
+        const r = wrap.querySelector('.wd-reset'); if (r) r.addEventListener('click', () => { e.game = newWordle(); refreshGame(e); });
+    }
+
+    // ---------- dispatchers de juego ----------
+    function renderGame(e) { return e.game.type === 'wordle' ? renderWordle(e) : renderMines(e); }
+    function bindGame(e, wrap) { if (e.game.type === 'wordle') bindWordle(e, wrap); else bindMines(e, wrap); }
+    function refreshGame(e) {
+        const wrap = readerEl.querySelector('#ms-wrap');
+        if (!wrap) return;
+        wrap.innerHTML = renderGame(e);
+        bindGame(e, wrap);
     }
 
     // =====================================================
@@ -698,7 +757,7 @@
             };
             if (e.heat >= GAME_HEAT && !e.gameShown) {
                 msg.game = true; msg.slop = true;
-                e.gameShown = true; e.game = newGame();
+                e.gameShown = true; e.game = chance(0.5) ? newWordle() : newGame();
             }
             e.convo.push(msg);
             e.awaiting = false;
@@ -789,19 +848,6 @@
         state.sound = !state.sound;
         ev.currentTarget.textContent = state.sound ? '🔊' : '🔇';
         ev.currentTarget.classList.toggle('muted', !state.sound);
-    });
-
-    // ---------- video (YouTube) mute toggle ----------
-    let videoMuted = true;
-    function ytCmd(func, args) {
-        const f = document.getElementById('bg-video');
-        if (f && f.contentWindow) f.contentWindow.postMessage(JSON.stringify({ event: 'command', func, args: args || [] }), '*');
-    }
-    $('#video-sound').addEventListener('click', (ev) => {
-        videoMuted = !videoMuted;
-        if (videoMuted) { ytCmd('mute'); }
-        else { ytCmd('unMute'); ytCmd('setVolume', [60]); ytCmd('playVideo'); }
-        ev.currentTarget.textContent = videoMuted ? '🔇' : '🔊';
     });
 
     // ---------- idioma ----------
