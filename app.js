@@ -203,8 +203,6 @@
             msLose: '💥 BOOM. no sos una artista real. rechazo confirmado.',
             msPlay: '⚠️ limpiá el campo minado para probar que sos una artista real',
             msFlagOn: '🚩 modo bandera: ON', msFlagOff: '🚩 modo bandera: off', msReset: '↺ reiniciar',
-            wPlay: '⌨️ adiviná la palabra del rechazo', wWin: '✅ acertaste — y aún así, rechazada.',
-            wLose: '💥 ni la palabra pudiste. rechazo confirmado.', wHint: 'pista: empieza con "{L}"',
             typing: 'escribiendo'
         },
         en: {
@@ -218,8 +216,6 @@
             msLose: '💥 BOOM. not a real artist. rejection confirmed.',
             msPlay: '⚠️ clear the minefield to prove you are a real artist',
             msFlagOn: '🚩 flag mode: ON', msFlagOff: '🚩 flag mode: off', msReset: '↺ reset',
-            wPlay: '⌨️ guess the rejection word', wWin: '✅ you guessed it — and still, rejected.',
-            wLose: '💥 you couldn’t even guess it. rejection confirmed.', wHint: 'hint: starts with "{L}"',
             typing: 'typing'
         }
     };
@@ -588,62 +584,9 @@
         const r = wrap.querySelector('.ms-reset'); if (r) r.addEventListener('click', () => { e.game = newGame(); refreshGame(e); });
     }
 
-    // =====================================================
-    //  WORDLE (fácil) — palabras del rechazo
-    // =====================================================
-    const WORDLE_WORDS = {
-        en: ['SLOP', 'VOID', 'NOPE', 'FAIL', 'LOSS', 'NEXT', 'WAIT', 'COPE', 'VETO', 'NUMB'],
-        es: ['NADA', 'LUTO', 'SOLA', 'FILA', 'FRIO', 'VETO', 'RUGO', 'GRIS', 'CAOS', 'MUDO']
-    };
-    function newWordle() {
-        const word = pick(WORDLE_WORDS[L()]);
-        return { type: 'wordle', word, len: word.length, guesses: [], max: 8, status: 'play' };
-    }
-    function wordleEval(guess, word) {
-        const res = new Array(guess.length).fill('x');
-        const used = new Array(word.length).fill(false);
-        for (let i = 0; i < guess.length; i++) { if (guess[i] === word[i]) { res[i] = 'g'; used[i] = true; } }
-        for (let i = 0; i < guess.length; i++) {
-            if (res[i] === 'g') continue;
-            for (let j = 0; j < word.length; j++) { if (!used[j] && word[j] === guess[i]) { res[i] = 'y'; used[j] = true; break; } }
-        }
-        return res;
-    }
-    function renderWordle(e) {
-        const g = e.game;
-        const status = g.status === 'won' ? t('wWin') : g.status === 'lost' ? t('wLose') : t('wPlay');
-        const hint = fill(t('wHint'), { L: g.word[0] });
-        const rows = g.guesses.map((guess) => {
-            const ev = wordleEval(guess, g.word);
-            return `<div class="wd-row">` + guess.split('').map((ch, i) => `<span class="wd-cell ${ev[i]}">${ch}</span>`).join('') + `</div>`;
-        }).join('');
-        const controls = g.status === 'play'
-            ? `<div class="wd-input"><input class="wd-field" type="text" maxlength="${g.len}" autocomplete="off" autocapitalize="characters" spellcheck="false"><button class="wd-go" type="button">↵</button></div>`
-            : `<div class="ms-controls"><button class="wd-reset" type="button">${t('msReset')}</button></div>`;
-        return `<div class="ms-status">${status}</div><div class="wd-hint">${hint}</div>${rows}${controls}`;
-    }
-    function bindWordle(e, wrap) {
-        const field = wrap.querySelector('.wd-field');
-        const go = wrap.querySelector('.wd-go');
-        function submit() {
-            if (!field) return;
-            const guess = field.value.toUpperCase().replace(/[^A-ZÑÁÉÍÓÚÜ]/g, '');
-            if (guess.length !== e.game.len) return;
-            e.game.guesses.push(guess);
-            if (guess === e.game.word) e.game.status = 'won';
-            else if (e.game.guesses.length >= e.game.max) e.game.status = 'lost';
-            refreshGame(e);
-            const nf = readerEl.querySelector('.wd-field');
-            if (nf) nf.focus({ preventScroll: true });
-        }
-        if (go) go.addEventListener('click', submit);
-        if (field) field.addEventListener('keydown', (ev) => { if (ev.key === 'Enter') { ev.preventDefault(); submit(); } });
-        const r = wrap.querySelector('.wd-reset'); if (r) r.addEventListener('click', () => { e.game = newWordle(); refreshGame(e); });
-    }
-
-    // ---------- dispatchers de juego ----------
-    function renderGame(e) { return e.game.type === 'wordle' ? renderWordle(e) : renderMines(e); }
-    function bindGame(e, wrap) { if (e.game.type === 'wordle') bindWordle(e, wrap); else bindMines(e, wrap); }
+    // ---------- juego ----------
+    function renderGame(e) { return renderMines(e); }
+    function bindGame(e, wrap) { bindMines(e, wrap); }
     function refreshGame(e) {
         const wrap = readerEl.querySelector('#ms-wrap');
         if (!wrap) return;
@@ -757,7 +700,7 @@
             };
             if (e.heat >= GAME_HEAT && !e.gameShown) {
                 msg.game = true; msg.slop = true;
-                e.gameShown = true; e.game = chance(0.5) ? newWordle() : newGame();
+                e.gameShown = true; e.game = newGame();
             }
             e.convo.push(msg);
             e.awaiting = false;
